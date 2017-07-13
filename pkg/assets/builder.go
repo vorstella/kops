@@ -22,7 +22,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/golang/glog"
 	"k8s.io/kops/pkg/apis/kops"
 	"k8s.io/kops/pkg/featureflag"
 	"k8s.io/kops/pkg/kubemanifest"
