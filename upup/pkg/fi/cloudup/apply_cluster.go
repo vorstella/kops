@@ -463,8 +463,8 @@ func (c *ApplyClusterCmd) Run() error {
 			iamLifecycle = lifecyclePointer(fi.LifecycleExistsAndWarnIfChanges)
 			networkLifecycle = lifecyclePointer(fi.LifecycleExistsAndWarnIfChanges)
 		} else {
-			iamLifecycle = lifecyclePointer(fi.LifecycleExistsAndValidates)
-			networkLifecycle = lifecyclePointer(fi.LifecycleExistsAndValidates)
+			iamLifecycle = lifecyclePointer(fi.LifecycleExistsAndWarnIfChanges)
+			networkLifecycle = lifecyclePointer(fi.LifecycleExistsAndWarnIfChanges)
 		}
 	default:
 		return fmt.Errorf("unknown phase %q", c.Phase)
