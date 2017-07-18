@@ -35,6 +35,7 @@ import (
 // IAMModelBuilder configures IAM objects
 type IAMModelBuilder struct {
 	*KopsModelContext
+	Lifecycle *fi.Lifecycle
 }
 
 var _ fi.ModelBuilder = &IAMModelBuilder{}
@@ -104,9 +105,9 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 
 				roleName := rs[length-1]
 				iamRole = &awstasks.IAMRole{
-					Name: &roleName,
-					ID:   &arn,
-
+					Name:      &roleName,
+					ID:        &arn,
+					Lifecycle: b.Lifecycle,
 					// We set Policy Document to nil as this role will be managed externally
 					RolePolicyDocument: nil,
 				}
@@ -135,6 +136,7 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 					Name:               s(name),
 					RolePolicyDocument: fi.WrapResource(rolePolicy),
 					ExportWithID:       s(strings.ToLower(string(role)) + "s"),
+					Lifecycle:          b.Lifecycle,
 				}
 				c.AddTask(iamRole)
 
@@ -164,6 +166,7 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 					Name:           s(name),
 					Role:           iamRole,
 					PolicyDocument: iamPolicy,
+					Lifecycle:      b.Lifecycle,
 				}
 				c.AddTask(t)
 			}
@@ -172,7 +175,8 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 		var iamInstanceProfile *awstasks.IAMInstanceProfile
 		{
 			iamInstanceProfile = &awstasks.IAMInstanceProfile{
-				Name: s(name),
+				Name:      s(name),
+				Lifecycle: b.Lifecycle,
 			}
 			c.AddTask(iamInstanceProfile)
 		}
@@ -183,6 +187,7 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 
 				InstanceProfile: iamInstanceProfile,
 				Role:            iamRole,
+				Lifecycle:       b.Lifecycle,
 			}
 			c.AddTask(iamInstanceProfileRole)
 		}
@@ -200,8 +205,9 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 			additionalPolicyName := "additional." + name
 
 			t := &awstasks.IAMRolePolicy{
-				Name: s(additionalPolicyName),
-				Role: iamRole,
+				Name:      s(additionalPolicyName),
+				Role:      iamRole,
+				Lifecycle: b.Lifecycle,
 			}
 
 			if additionalPolicy != "" {
