@@ -1,12 +1,28 @@
+env:
+  global:
+    - VERSION=1.7.0-beta-k8s4greeks.1
 language: go
 go:
   - 1.8
-  - tip
-
 go_import_path: k8s.io/kops
-
 script:
-  - make ci
-
+- make ci
 git:
   submodules: false
+sudo: required
+services:
+- docker
+after_success:
+- make version-dist
+deploy:
+  skip_cleanup: true
+  provider: s3
+  access_key_id:
+    secure: uoeDFcDxvq6/R31yHG6vT/2iD4ym5JYIU6VEVc8NCGQqDO77K+iUHd0Ga61so1x/MtKBEdUngsIw/2fves6XDQOmK0Piz3rWFdhYELtNIhdmqiY5UzxY9dF2gKorieNpIBmtWswqxS3Q98AsvZ4wtAyHtVViGQf2LPd7niZggyFVJQdxJstI/kMBTZuM+Dm9calyZ7XHV/mRq0n7tshHAwXpmRTDSRR0QvqmM4gAz6qHL+25dOrzv/6NsI20AyxnwIUpUq3kANVLSUVJirehzK4seYCvzZkzj1wVAn7sZCEvAhW94GIw5VdlyoFlZkeT9Sjg1SeH/LWx/ig0czu3lnhNnixEWWvD62Ut+KjzRy0QDwp2K2MrYONPe4nv0bTLCegiVfW5LmQjK9ujIjfvJwGZmJlvHjVuSLXIB2WHCFjH+dRjrsyn8I1iKe2XaPUx0DxroH9bIYjm/nY5G05y25SV1rLQH5oMKwj9Wf11lP7+5jjstFJd+L/XBfsFBmn818z4neJte74nkAOstVWGHpWDGuIn0UYB3bMgwDJ0EcZRQanCTmO19BQIXChK6Gn4EmPEFHejLY2iiclkNJIyiSqEkelQ/UV9ajclDXs1Zds3JQP8wvn8K8rKQfcuPyK3W7O/kqeFNbyxqA5GvaV87CWvA58ejOCpWpMKKxtQJxk=
+  bucket: k8s-for-greeks-kops
+  local_dir: "$GOPATH/src/k8s.io/kops/.build/upload"
+  secret_access_key:
+    secure: qzgCIesaBDwCkSTgw787KxPtqfyl9NZ3D85y8As9yeGmG1jZ8eXV3fCrfKLh5427QTzxtjX+5kLk1AG1GX/FxyI++//srd4IGP7BzWkA7PrQ/n7gzqcXvp/tnDWLxGBCycUludI+QehNDIWDG8x1zmqf8WKZ2DM5vHKLw9n533+7brkKovynd1w+lPdfhcB2cZjp4i2grj7bIYyKD0eldtmHUusafJfVT8QCY0XjfO8apv2PeAYdsO0d56gHCmid/0OV4MQpIFMNOKRkC/v5WEsNjP6xOR9PRlETJ6IIY+1P62lJkswqrL3oI65qAgVLR8g+IRySr4Ujx3fEfDq4pvzrm6k9BKu+ScuXRgx9kuRsznScAtOtojeJAuMxxl7mzkD9Q7GZioKfCzn9pN4OBE5UsfCSNwPC58Tb1shpnHHFkod/DTRpP/1//7FKF56CeYIk5yjNWlRNJSFyI5KZWWZIUOBUahrckCOCJCHuHsAWO+U1IrcKL2GEqyl/3y+bqwep1Wdbh+KwDRiRgM6etkKeSLu5TH3RU7b4zbHUbGhKJ323fj8UV4dIgekOfFKNPNdNr/yvbaeFLnbk23Mu8qz11yeqbMSEIXvuC23zsdNtwD/R9A1BILrHiIrae2SkPgqo773ge9F+FQhoV7lluNrwXv3o/S06a2ThLTP1IKA=
+  acl: public_read
+  on:
+    branch: k8s-for-greeks-integration
