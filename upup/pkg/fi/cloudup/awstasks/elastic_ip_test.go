@@ -18,17 +18,15 @@ package awstasks
 
 import (
 	"bytes"
+	"github.com/aws/aws-sdk-go/service/ec2"
+	"k8s.io/kops/cloudmock/aws/mockec2"
+	"k8s.io/kops/pkg/assets"
+	"k8s.io/kops/upup/pkg/fi"
+	"k8s.io/kops/upup/pkg/fi/cloudup/awsup"
 	"os"
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/aws/aws-sdk-go/service/ec2"
-	"k8s.io/kops/cloudmock/aws/mockec2"
-	api "k8s.io/kops/pkg/apis/kops"
-	"k8s.io/kops/pkg/assets"
-	"k8s.io/kops/upup/pkg/fi"
-	"k8s.io/kops/upup/pkg/fi/cloudup/awsup"
 )
 
 const defaultDeadline = 2 * time.Second
@@ -106,9 +104,7 @@ func TestElasticIPCreate(t *testing.T) {
 }
 
 func checkNoChanges(t *testing.T, cloud fi.Cloud, allTasks map[string]fi.Task) {
-	c := &api.Cluster{}
-	c.ObjectMeta.Name = "testcluster.test.com"
-	assetBuilder := assets.NewAssetBuilder(&c.Spec)
+	assetBuilder := assets.NewAssetBuilder()
 	target := fi.NewDryRunTarget(assetBuilder, os.Stderr)
 	context, err := fi.NewContext(target, cloud, nil, nil, nil, true, allTasks)
 	if err != nil {
