@@ -490,6 +490,7 @@ func (c *ApplyClusterCmd) Run() error {
 					assetBuilder: assetBuilder,
 					Lifecycle:    clusterLifecycle,
 				},
+				&model.PKIModelBuilder{KopsModelContext: modelContext, Lifecycle: clusterLifecycle},
 			)
 
 			switch kops.CloudProviderID(cluster.Spec.CloudProvider) {
