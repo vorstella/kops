@@ -1,6 +1,6 @@
-env:
-  global:
-    - VERSION=1.7.0-beta-k8s4greeks.1
+#env:
+#  global:
+#    - VERSION=1.7.0-beta-k8s4greeks.1
 language: go
 go:
   - 1.8
