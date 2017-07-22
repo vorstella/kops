@@ -61,7 +61,7 @@ spec:
         operator: "Exists"
       serviceAccountName: kube-dns-autoscaler
 
-
+---
 
 apiVersion: extensions/v1beta1
 kind: Deployment
