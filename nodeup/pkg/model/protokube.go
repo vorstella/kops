@@ -263,6 +263,9 @@ func (t *ProtokubeBuilder) ProtokubeFlags(k8sVersion semver.Version) *ProtokubeF
 func (t *ProtokubeBuilder) ProtokubeEnvironmentVariables() string {
 	var buffer bytes.Buffer
 
+	// TODO write out an environments file for this.  This is getting a tad long.
+
+	// Pass in required credentials when using user-defined s3 endpoint
 	if os.Getenv("AWS_REGION") != "" {
 		buffer.WriteString(" ")
 		buffer.WriteString("-e 'AWS_REGION=")
@@ -271,8 +274,8 @@ func (t *ProtokubeBuilder) ProtokubeEnvironmentVariables() string {
 		buffer.WriteString(" ")
 	}
 
-	// Pass in required credentials when using user-defined s3 endpoint
 	if os.Getenv("S3_ENDPOINT") != "" {
+
 		buffer.WriteString(" ")
 		buffer.WriteString("-e S3_ENDPOINT=")
 		buffer.WriteString("'")
@@ -293,5 +296,24 @@ func (t *ProtokubeBuilder) ProtokubeEnvironmentVariables() string {
 		buffer.WriteString(" ")
 	}
 
+	if t.Cluster.Spec.EgressProxy != nil {
+		proxy := os.Getenv("http_proxy")
+		noProxy := os.Getenv("no_proxy")
+		buffer.WriteString(" -e http_proxy=")
+		buffer.WriteString(proxy)
+		buffer.WriteString(" ")
+		buffer.WriteString(" -e https_proxy=")
+		buffer.WriteString(proxy)
+		buffer.WriteString(" ")
+		buffer.WriteString(" -e ftp_proxy=")
+		buffer.WriteString(proxy)
+		buffer.WriteString(" ")
+		buffer.WriteString(" -e no_proxy=")
+		buffer.WriteString(noProxy)
+		buffer.WriteString(" ")
+		buffer.WriteString(" -e NO_PROXY=")
+		buffer.WriteString(noProxy)
+		buffer.WriteString(" ")
+	}
 	return buffer.String()
 }

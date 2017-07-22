@@ -255,6 +255,42 @@ func (b *KubeAPIServerBuilder) buildPod() (*v1.Pod, error) {
 		}
 	}
 
+	/*
+		if b.Cluster.Spec.EgressProxy != nil {
+			proxies := b.Cluster.Spec.EgressProxy
+			httpProxy := proxies.HTTPProxy
+			if httpProxy.Host != "" {
+				url := "http://"
+				if httpProxy.User != "" {
+					url += httpProxy.User
+					if httpProxy.Password != "" {
+						url += ":" + httpProxy.Password
+					}
+					url += "@"
+				}
+				url += httpProxy.Host + ":" + strconv.Itoa(httpProxy.Port)
+				container.Env = append(container.Env,
+					v1.EnvVar{
+						Name:  "http_proxy",
+						Value: url,
+					},
+					v1.EnvVar{
+						Name:  "https_proxy",
+						Value: url,
+					},
+					v1.EnvVar{
+						Name:  "ftp_proxy",
+						Value: url,
+					})
+			}
+			if proxies.ProxyExcludes != "" {
+				x := v1.EnvVar{
+					Name:  "no_proxy",
+					Value: proxies.ProxyExcludes}
+				container.Env = append(container.Env, x)
+			}
+		}*/
+
 	pod.Spec.Containers = append(pod.Spec.Containers, *container)
 
 	return pod, nil
