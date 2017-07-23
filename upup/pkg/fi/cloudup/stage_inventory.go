@@ -79,6 +79,7 @@ func NewStageInventory(fileRepo string, stageFiles bool, containerRepo string, s
 		assetTransferers[AssetBinary] = FileAssetTransferer{
 			fileRepo: fileRepo,
 		}
+
 	}
 
 	if stageContainers {
@@ -106,6 +107,13 @@ func (i *StageInventory) Run() error {
 		err := i.processAsset(*asset, AssetBinary)
 		if err != nil {
 			return fmt.Errorf("Error StageInventory.Run - Type:%s Data: %+v, err %v", AssetBinary, asset, err)
+		}
+	}
+
+	for _, asset := range i.inventory.CompressedFileAssets {
+		err := i.processAsset(*asset, AssetCompressedFile)
+		if err != nil {
+			return fmt.Errorf("Error StageInventory.Run - Type:%s Data: %+v, err %v", AssetCompressedFile, asset, err)
 		}
 	}
 
