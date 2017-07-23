@@ -304,6 +304,11 @@ protokube-export: protokube-image
 protokube-push: protokube-image
 	docker tag protokube:${PROTOKUBE_TAG} ${DOCKER_REGISTRY}/protokube:${PROTOKUBE_TAG}
 	docker push ${DOCKER_REGISTRY}/protokube:${PROTOKUBE_TAG}
+	
+.PHONY: protokube-push-no-build
+protokube-push-no-build:
+	docker tag protokube:${PROTOKUBE_TAG} ${DOCKER_REGISTRY}/protokube:${PROTOKUBE_TAG}
+	docker push ${DOCKER_REGISTRY}/protokube:${PROTOKUBE_TAG}
 
 .PHONY: nodeup
 nodeup: nodeup-dist
