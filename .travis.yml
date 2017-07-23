@@ -1,19 +1,21 @@
-#env:
-#  global:
-#    - VERSION=1.7.0-beta-k8s4greeks.1
 language: go
 go:
   - 1.8
 go_import_path: k8s.io/kops
 script:
-- make ci
+- CI=1 make ci
 git:
   submodules: false
 sudo: required
 services:
 - docker
 after_success:
-- make version-dist
+- CI=1 make version-dist
+#  encrypt env variables
+#  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+#    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+#    docker push USER/REPO;
+#    fi
 deploy:
   skip_cleanup: true
   provider: s3
