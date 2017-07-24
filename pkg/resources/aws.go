@@ -2088,6 +2088,9 @@ func FilterUserProvidedItems(resourceTrackers map[string]*ResourceTracker, clust
 			// VPC components, including the VPC itself.
 			if clusterSpec.NetworkID != "" {
 				switch resourceTracker.Type {
+				case "internet-gateway":
+					glog.V(4).Infof("Filtering User Provided internet-gateway[%s] from Delete List.\n", resourceTracker.ID)
+					delete(resourceTrackers, resourceName)
 				case ec2.ResourceTypeVpc:
 					glog.V(4).Infof("Filtering User Provided vpc[%s] from Delete List.\n", resourceTracker.ID)
 					delete(resourceTrackers, resourceName)
@@ -2097,6 +2100,8 @@ func FilterUserProvidedItems(resourceTrackers map[string]*ResourceTracker, clust
 				case ec2.ResourceTypeRouteTable:
 					glog.V(4).Infof("Filtering User Provided route-table[%s] from Delete List.\n", resourceTracker.ID)
 					delete(resourceTrackers, resourceName)
+				default:
+					glog.V(4).Infof("Not filtering User Provided [%s] from Delete List.\n", resourceTracker.ID)
 				}
 			}
 		}
