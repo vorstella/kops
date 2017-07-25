@@ -150,7 +150,7 @@ func assignProxy(cluster *kops.Cluster) *kops.EgressProxySpec {
 			"localhost",
 			// TODO test for AWS
 			"169.254.169.254",
-			cluster.Spec.ClusterDNSDomain, // TODO we may want this for public loadbalancers
+			cluster.Spec.ClusterDNSDomain, // TODO we may not want this for public loadbalancers
 			cluster.Spec.MasterPublicName,
 			cluster.ObjectMeta.Name,
 			// TODO we should probably check the Non Masq CIDR
