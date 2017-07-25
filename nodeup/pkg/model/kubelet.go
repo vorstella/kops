@@ -160,12 +160,6 @@ func (b *KubeletBuilder) buildSystemdEnvironmentFile(kubeletConfig *kops.Kubelet
 
 	sysconfig := "DAEMON_ARGS=\"" + flags + "\"\n"
 
-	// overriding kubelet using http proxy.  Not certain this will work for pause container, as we may have to
-	// do a pre-pull for it
-	if b.Cluster.Spec.EgressProxy != nil {
-		sysconfig += "https_proxy=\nhttp_proxy=\n"
-	}
-
 	t := &nodetasks.File{
 		Path:     "/etc/sysconfig/kubelet",
 		Contents: fi.NewStringResource(sysconfig),

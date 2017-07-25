@@ -35,7 +35,7 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 	c.Spec.EgressProxy = assignProxy(c)
 	c.Spec.NonMasqueradeCIDR = "100.64.0.1/10"
 
-	if c.Spec.EgressProxy.ProxyExcludes != "google.com,127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1" {
+	if c.Spec.EgressProxy.ProxyExcludes != "google.com,127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1,100.64.0.0/10" {
 		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
 	}
 
@@ -48,7 +48,7 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 
 	c.Spec.EgressProxy = assignProxy(c)
 
-	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1" {
+	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1,100.64.0.1/10" {
 		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
 	}
 
