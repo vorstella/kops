@@ -160,7 +160,7 @@ func validateExecContainerAction(v *kops.ExecContainerAction, fldPath *field.Pat
 }
 
 // format is arn:aws:iam::123456789012:role/S3Access
-var validARN = regexp.MustCompile(`^arn:aws:iam::\d+:role\/\S+$`)
+var RoleARNRegExp = regexp.MustCompile(`^arn:aws:iam::\d+:role\/(\S+)$`)
 
 // validateAuthRole checks the String values for the AuthRole
 func validateAuthRole(v *kops.AuthRole, fldPath *field.Path) field.ErrorList {
@@ -168,14 +168,14 @@ func validateAuthRole(v *kops.AuthRole, fldPath *field.Path) field.ErrorList {
 
 	if v.Node != nil {
 		arn := *v.Node
-		if !validARN.MatchString(arn) {
+		if !RoleARNRegExp.MatchString(arn) {
 			allErrs = append(allErrs, field.Invalid(fldPath.Child("Node"), arn,
 				"Node AuthRole must be a valid aws arn such as arn:aws:iam::123456789012:role/KopsNodeExampleRole"))
 		}
 	}
 	if v.Master != nil {
 		arn := *v.Master
-		if !validARN.MatchString(arn) {
+		if !RoleARNRegExp.MatchString(arn) {
 			allErrs = append(allErrs, field.Invalid(fldPath.Child("Master"), arn,
 				"Node AuthRole must be a valid aws arn such as arn:aws:iam::123456789012:role/KopsMasterExampleRole"))
 		}
