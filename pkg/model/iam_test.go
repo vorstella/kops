@@ -28,12 +28,12 @@ func Test_RoleRegex(t *testing.T) {
 	}{
 		{
 			"arn:aws:iam::034201736311:role/prn/aws/syd/non/bffoo/sdskube/poc1/20/admin/bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
-			"prn/aws/syd/non/bffoo/sdskube/poc1/20/admin/bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
+			"bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
 			true,
 		},
 		{
-			"arn:aws:iam::034201736311:instance-profile/prn/aws/syd/non/bffoo/sdskube/poc1/20/admin/bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
-			"",
+			"arn:aws:iam::034201736311:role/prn/aws/syd/non/bffoo/sdskube/poc1/20/admin/bar/bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
+			"bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
 			false,
 		},
 		{

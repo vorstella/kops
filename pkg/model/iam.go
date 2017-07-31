@@ -26,11 +26,11 @@ import (
 	"github.com/golang/glog"
 
 	"k8s.io/kops/pkg/apis/kops"
-	"k8s.io/kops/pkg/apis/kops/validation"
 	"k8s.io/kops/pkg/featureflag"
 	"k8s.io/kops/pkg/model/iam"
 	"k8s.io/kops/upup/pkg/fi"
 	"k8s.io/kops/upup/pkg/fi/cloudup/awstasks"
+	"regexp"
 )
 
 // IAMModelBuilder configures IAM objects
@@ -258,8 +258,9 @@ func (b *IAMModelBuilder) buildAWSIAMRolePolicy() (fi.Resource, error) {
 	return templateResource, nil
 }
 
+var RoleNamRegExp = regexp.MustCompile(`([^/]+$)`)
 func findCustomArn(arn string) (string, error) {
-	rs := validation.RoleARNRegExp.FindStringSubmatch(arn)
+	rs := RoleNamRegExp.FindStringSubmatch(arn)
 	roleName := ""
 
 	if len(rs) >= 2 {
