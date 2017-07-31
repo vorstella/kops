@@ -259,6 +259,7 @@ func (b *IAMModelBuilder) buildAWSIAMRolePolicy() (fi.Resource, error) {
 }
 
 var RoleNamRegExp = regexp.MustCompile(`([^/]+$)`)
+
 func findCustomArn(arn string) (string, error) {
 	rs := RoleNamRegExp.FindStringSubmatch(arn)
 	roleName := ""
