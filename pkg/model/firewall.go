@@ -56,12 +56,13 @@ func (b *FirewallModelBuilder) Build(c *fi.ModelBuilderContext) error {
 	b.secGroupNode = secGroupNode
 
 	if b.Cluster.Spec.SecurityGroups != nil && b.Cluster.Spec.SecurityGroups.Node != nil {
+		glog.V(8).Infof("adding shared node security group: %q", *b.Cluster.Spec.SecurityGroups.Node.ID)
 		t := &awstasks.SecurityGroup{
-			Lifecycle:   b.Lifecycle,
-			VPC:         b.LinkToVPC(),
-			Name:        b.Cluster.Spec.SecurityGroups.Node,
-			Description: s("Re-used security group nodes"),
-			Shared:      B(true),
+			Lifecycle: b.Lifecycle,
+			VPC:       b.LinkToVPC(),
+			Name:      b.Cluster.Spec.SecurityGroups.Node.Name,
+			Shared:    B(true),
+			ID:        b.Cluster.Spec.SecurityGroups.Node.ID,
 		}
 		c.AddTask(t)
 	} else if err := b.buildNodeRules(c); err != nil {
@@ -69,12 +70,13 @@ func (b *FirewallModelBuilder) Build(c *fi.ModelBuilderContext) error {
 	}
 
 	if b.Cluster.Spec.SecurityGroups != nil && b.Cluster.Spec.SecurityGroups.Master != nil {
+		glog.V(8).Infof("adding shared master security group: %q", *b.Cluster.Spec.SecurityGroups.Master.ID)
 		t := &awstasks.SecurityGroup{
-			Lifecycle:   b.Lifecycle,
-			VPC:         b.LinkToVPC(),
-			Name:        b.Cluster.Spec.SecurityGroups.Master,
-			Description: s("Re-used security group masters"),
-			Shared:      B(true),
+			Lifecycle: b.Lifecycle,
+			VPC:       b.LinkToVPC(),
+			Name:      b.Cluster.Spec.SecurityGroups.Master.Name,
+			Shared:    B(true),
+			ID:        b.Cluster.Spec.SecurityGroups.Master.ID,
 		}
 		c.AddTask(t)
 	} else if err := b.buildMasterRules(c); err != nil {

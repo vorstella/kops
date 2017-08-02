@@ -60,7 +60,7 @@ func (b *ExternalAccessModelBuilder) Build(c *fi.ModelBuilderContext) error {
 			return fmt.Errorf("unable to link security group for master external access: %v", err)
 		}
 		for _, sshAccess := range b.Cluster.Spec.SSHAccess {
-			if b.Cluster.Spec.SecurityGroups == nil && b.Cluster.Spec.SecurityGroups.Master == nil {
+			if b.Cluster.Spec.SecurityGroups == nil || b.Cluster.Spec.SecurityGroups.Node == nil {
 				c.AddTask(&awstasks.SecurityGroupRule{
 					Name:          s("ssh-external-to-master-" + sshAccess),
 					Lifecycle:     b.Lifecycle,
@@ -72,7 +72,7 @@ func (b *ExternalAccessModelBuilder) Build(c *fi.ModelBuilderContext) error {
 				})
 			}
 
-			if b.Cluster.Spec.SecurityGroups == nil && b.Cluster.Spec.SecurityGroups.Node == nil {
+			if b.Cluster.Spec.SecurityGroups == nil || b.Cluster.Spec.SecurityGroups.Master == nil {
 				c.AddTask(&awstasks.SecurityGroupRule{
 					Name:          s("ssh-external-to-node-" + sshAccess),
 					Lifecycle:     b.Lifecycle,
@@ -92,7 +92,7 @@ func (b *ExternalAccessModelBuilder) Build(c *fi.ModelBuilderContext) error {
 		// We need to open security groups directly to the master nodes (instead of via the ELB)
 
 		// HTTPS to the master is allowed (for API access)
-		if b.Cluster.Spec.SecurityGroups == nil && b.Cluster.Spec.SecurityGroups.Master == nil {
+		if b.Cluster.Spec.SecurityGroups == nil || b.Cluster.Spec.SecurityGroups.Master == nil {
 			masterSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster)
 			if err != nil {
 				return fmt.Errorf("unable to link security group for api external access: %v", err)

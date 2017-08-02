@@ -263,7 +263,13 @@ func (_ *LaunchConfiguration) RenderAWS(t *awsup.AWSAPITarget, a, e, changes *La
 	}
 
 	securityGroupIDs := []*string{}
+	if len(e.SecurityGroups) == 0 {
+		return fmt.Errorf("no security groups found")
+	}
 	for _, sg := range e.SecurityGroups {
+		if sg.ID == nil {
+			return fmt.Errorf("Security group ID cannot be nil %q", sg.Name)
+		}
 		securityGroupIDs = append(securityGroupIDs, sg.ID)
 	}
 

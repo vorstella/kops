@@ -77,7 +77,7 @@ func BuildChanges(a, e, changes interface{}) bool {
 				continue
 			}
 
-			glog.V(8).Infof("Field changed %q actual=%q expected=%q", t.Field(i).Name, DebugPrint(fva.Interface()), DebugPrint(fve.Interface()))
+			glog.V(8).Infof("Field changed %q actual=%q expected=%q e %+v a %+v", t.Field(i).Name, DebugPrint(fva.Interface()), DebugPrint(fve.Interface()), e, a)
 		}
 		changed = true
 		vc.Field(i).Set(fve)

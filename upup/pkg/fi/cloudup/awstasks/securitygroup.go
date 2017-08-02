@@ -120,6 +120,7 @@ func (e *SecurityGroup) findEc2(c *fi.Context) (*ec2.SecurityGroup, error) {
 		return nil, fmt.Errorf("error listing SecurityGroups: %v", err)
 	}
 	if response == nil || len(response.SecurityGroups) == 0 {
+		glog.V(8).Infof("unable to find security group")
 		return nil, nil
 	}
 
@@ -127,6 +128,7 @@ func (e *SecurityGroup) findEc2(c *fi.Context) (*ec2.SecurityGroup, error) {
 		return nil, fmt.Errorf("found multiple SecurityGroups matching tags")
 	}
 	sg := response.SecurityGroups[0]
+	glog.V(8).Infof("found security group: %q", *sg.GroupId)
 	return sg, nil
 }
 

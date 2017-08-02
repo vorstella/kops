@@ -31,20 +31,14 @@ func (b *KopsModelContext) SecurityGroup(role kops.InstanceGroupRole) (*awstasks
 	case kops.InstanceGroupRoleNode:
 		if b.Cluster.Spec.SecurityGroups != nil && b.Cluster.Spec.SecurityGroups.Node != nil {
 			return &awstasks.SecurityGroup{
-				Name:        b.Cluster.Spec.SecurityGroups.Node,
-				VPC:         b.LinkToVPC(),
-				Description: s("Re-used security group nodes"),
-				Shared:      B(true),
+				Name: b.Cluster.Spec.SecurityGroups.Node.Name,
 			}, nil
 		}
 		return &awstasks.SecurityGroup{Name: fi.String("nodes." + b.ClusterName())}, nil
 	case kops.InstanceGroupRoleMaster:
 		if b.Cluster.Spec.SecurityGroups != nil && b.Cluster.Spec.SecurityGroups.Master != nil {
 			return &awstasks.SecurityGroup{
-				Name:        b.Cluster.Spec.SecurityGroups.Master,
-				VPC:         b.LinkToVPC(),
-				Description: s("Re-used security group nodes"),
-				Shared:      B(true),
+				Name: b.Cluster.Spec.SecurityGroups.Master.Name,
 			}, nil
 		}
 		return &awstasks.SecurityGroup{Name: fi.String("masters." + b.ClusterName())}, nil

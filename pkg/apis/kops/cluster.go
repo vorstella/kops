@@ -271,11 +271,21 @@ type ClusterSpec struct {
 // Security groups for master(s) and node(s)
 type SecurityGroups struct {
 
-	// Name is the name of the sg to use for the master
-	Master *string `json:"master,omitempty"`
+	// Master security group
+	Master *SecurityGroup `json:"master,omitempty"`
 
-	// Name is the name of the sg to use for the node
-	Node *string `json:"node,omitempty"`
+	// Node security group
+	Node *SecurityGroup `json:"node,omitempty"`
+}
+
+// Security groups for master(s) and node(s)
+type SecurityGroup struct {
+
+	// Name is the name of the sg to use for the security group
+	Name *string `json:"name,omitempty"`
+
+	// ID is the ID of the sg to use for the security group
+	ID *string `json:"id,omitempty"`
 }
 
 type Assets struct {
