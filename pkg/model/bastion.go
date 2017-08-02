@@ -17,11 +17,13 @@ limitations under the License.
 package model
 
 import (
+	"time"
+
+	"fmt"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/kops/pkg/apis/kops"
 	"k8s.io/kops/upup/pkg/fi"
 	"k8s.io/kops/upup/pkg/fi/cloudup/awstasks"
-	"time"
 )
 
 const BastionELBSecurityGroupPrefix = "bastion"
@@ -54,24 +56,40 @@ func (b *BastionModelBuilder) Build(c *fi.ModelBuilderContext) error {
 
 	// Create security group for bastion instances
 	{
-		t := &awstasks.SecurityGroup{
-			Name:      s(b.SecurityGroupName(kops.InstanceGroupRoleBastion)),
-			Lifecycle: b.Lifecycle,
-
-			VPC:              b.LinkToVPC(),
-			Description:      s("Security group for bastion"),
-			RemoveExtraRules: []string{"port=22"},
+		t, err := b.SecurityGroup(kops.InstanceGroupRoleBastion)
+		if err != nil {
+			return err
 		}
+		t.Lifecycle = b.Lifecycle
+		t.VPC = b.LinkToVPC()
+		t.Description = s("Security group for bastion")
+		t.RemoveExtraRules = []string{"port=22"}
 		c.AddTask(t)
+	}
+
+	bastionSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleBastion)
+	if err != nil {
+		return err
+	}
+
+	nodeSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleNode)
+	if err != nil {
+		return fmt.Errorf("unable to link node security group for bastion: %v", err)
+	}
+
+	masterSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster)
+	if err != nil {
+		return fmt.Errorf("unable to link master security group for bastion: %v", err)
 	}
 
 	// Allow traffic from bastion instances to egress freely
 	{
+
 		t := &awstasks.SecurityGroupRule{
 			Name:      s("bastion-egress"),
 			Lifecycle: b.Lifecycle,
 
-			SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleBastion),
+			SecurityGroup: bastionSecGroup,
 			Egress:        fi.Bool(true),
 			CIDR:          s("0.0.0.0/0"),
 		}
@@ -85,7 +103,7 @@ func (b *BastionModelBuilder) Build(c *fi.ModelBuilderContext) error {
 			Name:      s("ssh-elb-to-bastion"),
 			Lifecycle: b.Lifecycle,
 
-			SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleBastion),
+			SecurityGroup: bastionSecGroup,
 			SourceGroup:   b.LinkToELBSecurityGroup(BastionELBSecurityGroupPrefix),
 			Protocol:      s("tcp"),
 			FromPort:      i64(22),
@@ -100,8 +118,8 @@ func (b *BastionModelBuilder) Build(c *fi.ModelBuilderContext) error {
 			Name:      s("bastion-to-master-ssh"),
 			Lifecycle: b.Lifecycle,
 
-			SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster),
-			SourceGroup:   b.LinkToSecurityGroup(kops.InstanceGroupRoleBastion),
+			SecurityGroup: masterSecGroup,
+			SourceGroup:   bastionSecGroup,
 			Protocol:      s("tcp"),
 			FromPort:      i64(22),
 			ToPort:        i64(22),
@@ -115,8 +133,8 @@ func (b *BastionModelBuilder) Build(c *fi.ModelBuilderContext) error {
 			Name:      s("bastion-to-node-ssh"),
 			Lifecycle: b.Lifecycle,
 
-			SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleNode),
-			SourceGroup:   b.LinkToSecurityGroup(kops.InstanceGroupRoleBastion),
+			SecurityGroup: nodeSecGroup,
+			SourceGroup:   bastionSecGroup,
 			Protocol:      s("tcp"),
 			FromPort:      i64(22),
 			ToPort:        i64(22),

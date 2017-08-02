@@ -185,11 +185,15 @@ func (b *APILoadBalancerBuilder) Build(c *fi.ModelBuilderContext) error {
 
 	// Allow HTTPS to the master instances from the ELB
 	{
+		secGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster)
+		if err != nil {
+			return fmt.Errorf("unable to link security group for api load balancer")
+		}
 		t := &awstasks.SecurityGroupRule{
 			Name:      s("https-elb-to-master"),
 			Lifecycle: b.Lifecycle,
 
-			SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster),
+			SecurityGroup: secGroup,
 			SourceGroup:   b.LinkToELBSecurityGroup("api"),
 			FromPort:      i64(443),
 			ToPort:        i64(443),

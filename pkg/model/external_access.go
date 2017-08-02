@@ -17,6 +17,8 @@ limitations under the License.
 package model
 
 import (
+	"fmt"
+
 	"github.com/golang/glog"
 	"k8s.io/kops/pkg/apis/kops"
 	"k8s.io/kops/upup/pkg/fi"
@@ -48,26 +50,39 @@ func (b *ExternalAccessModelBuilder) Build(c *fi.ModelBuilderContext) error {
 		// But I think we can always add more permissions in this case later, but we can't easily take them away
 		glog.V(2).Infof("bastion is in use; won't configure SSH access to master / node instances")
 	} else {
-		for _, sshAccess := range b.Cluster.Spec.SSHAccess {
-			c.AddTask(&awstasks.SecurityGroupRule{
-				Name:          s("ssh-external-to-master-" + sshAccess),
-				Lifecycle:     b.Lifecycle,
-				SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster),
-				Protocol:      s("tcp"),
-				FromPort:      i64(22),
-				ToPort:        i64(22),
-				CIDR:          s(sshAccess),
-			})
+		nodeSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleNode)
+		if err != nil {
+			return fmt.Errorf("unable to link security group for node external access: %v", err)
+		}
 
-			c.AddTask(&awstasks.SecurityGroupRule{
-				Name:          s("ssh-external-to-node-" + sshAccess),
-				Lifecycle:     b.Lifecycle,
-				SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleNode),
-				Protocol:      s("tcp"),
-				FromPort:      i64(22),
-				ToPort:        i64(22),
-				CIDR:          s(sshAccess),
-			})
+		masterSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster)
+		if err != nil {
+			return fmt.Errorf("unable to link security group for master external access: %v", err)
+		}
+		for _, sshAccess := range b.Cluster.Spec.SSHAccess {
+			if b.Cluster.Spec.SecurityGroups == nil && b.Cluster.Spec.SecurityGroups.Master == nil {
+				c.AddTask(&awstasks.SecurityGroupRule{
+					Name:          s("ssh-external-to-master-" + sshAccess),
+					Lifecycle:     b.Lifecycle,
+					SecurityGroup: masterSecGroup,
+					Protocol:      s("tcp"),
+					FromPort:      i64(22),
+					ToPort:        i64(22),
+					CIDR:          s(sshAccess),
+				})
+			}
+
+			if b.Cluster.Spec.SecurityGroups == nil && b.Cluster.Spec.SecurityGroups.Node == nil {
+				c.AddTask(&awstasks.SecurityGroupRule{
+					Name:          s("ssh-external-to-node-" + sshAccess),
+					Lifecycle:     b.Lifecycle,
+					SecurityGroup: nodeSecGroup,
+					Protocol:      s("tcp"),
+					FromPort:      i64(22),
+					ToPort:        i64(22),
+					CIDR:          s(sshAccess),
+				})
+			}
 		}
 	}
 
@@ -77,17 +92,23 @@ func (b *ExternalAccessModelBuilder) Build(c *fi.ModelBuilderContext) error {
 		// We need to open security groups directly to the master nodes (instead of via the ELB)
 
 		// HTTPS to the master is allowed (for API access)
-		for _, apiAccess := range b.Cluster.Spec.KubernetesAPIAccess {
-			t := &awstasks.SecurityGroupRule{
-				Name:          s("https-external-to-master-" + apiAccess),
-				Lifecycle:     b.Lifecycle,
-				SecurityGroup: b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster),
-				Protocol:      s("tcp"),
-				FromPort:      i64(443),
-				ToPort:        i64(443),
-				CIDR:          s(apiAccess),
+		if b.Cluster.Spec.SecurityGroups == nil && b.Cluster.Spec.SecurityGroups.Master == nil {
+			masterSecGroup, err := b.LinkToSecurityGroup(kops.InstanceGroupRoleMaster)
+			if err != nil {
+				return fmt.Errorf("unable to link security group for api external access: %v", err)
 			}
-			c.AddTask(t)
+			for _, apiAccess := range b.Cluster.Spec.KubernetesAPIAccess {
+				t := &awstasks.SecurityGroupRule{
+					Name:          s("https-external-to-master-" + apiAccess),
+					Lifecycle:     b.Lifecycle,
+					SecurityGroup: masterSecGroup,
+					Protocol:      s("tcp"),
+					FromPort:      i64(443),
+					ToPort:        i64(443),
+					CIDR:          s(apiAccess),
+				}
+				c.AddTask(t)
+			}
 		}
 	}
 

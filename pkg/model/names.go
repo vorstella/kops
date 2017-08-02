@@ -20,26 +20,42 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"k8s.io/kops/pkg/apis/kops"
+	"k8s.io/kops/upup/pkg/fi"
 	"k8s.io/kops/upup/pkg/fi/cloudup/awstasks"
 )
 
-func (b *KopsModelContext) SecurityGroupName(role kops.InstanceGroupRole) string {
+func (b *KopsModelContext) SecurityGroup(role kops.InstanceGroupRole) (*awstasks.SecurityGroup, error) {
 	switch role {
 	case kops.InstanceGroupRoleBastion:
-		return "bastion." + b.ClusterName()
+		return &awstasks.SecurityGroup{Name: fi.String("bastion." + b.ClusterName())}, nil
 	case kops.InstanceGroupRoleNode:
-		return "nodes." + b.ClusterName()
+		if b.Cluster.Spec.SecurityGroups != nil && b.Cluster.Spec.SecurityGroups.Node != nil {
+			return &awstasks.SecurityGroup{
+				Name:        b.Cluster.Spec.SecurityGroups.Node,
+				VPC:         b.LinkToVPC(),
+				Description: s("Re-used security group nodes"),
+				Shared:      B(true),
+			}, nil
+		}
+		return &awstasks.SecurityGroup{Name: fi.String("nodes." + b.ClusterName())}, nil
 	case kops.InstanceGroupRoleMaster:
-		return "masters." + b.ClusterName()
+		if b.Cluster.Spec.SecurityGroups != nil && b.Cluster.Spec.SecurityGroups.Master != nil {
+			return &awstasks.SecurityGroup{
+				Name:        b.Cluster.Spec.SecurityGroups.Master,
+				VPC:         b.LinkToVPC(),
+				Description: s("Re-used security group nodes"),
+				Shared:      B(true),
+			}, nil
+		}
+		return &awstasks.SecurityGroup{Name: fi.String("masters." + b.ClusterName())}, nil
 	default:
 		glog.Fatalf("unknown role: %v", role)
-		return ""
+		return nil, fmt.Errorf("unable to build sg unknown role: %v", role)
 	}
 }
 
-func (b *KopsModelContext) LinkToSecurityGroup(role kops.InstanceGroupRole) *awstasks.SecurityGroup {
-	name := b.SecurityGroupName(role)
-	return &awstasks.SecurityGroup{Name: &name}
+func (b *KopsModelContext) LinkToSecurityGroup(role kops.InstanceGroupRole) (*awstasks.SecurityGroup, error) {
+	return b.SecurityGroup(role)
 }
 
 func (b *KopsModelContext) AutoscalingGroupName(ig *kops.InstanceGroup) string {

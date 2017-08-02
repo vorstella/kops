@@ -23,6 +23,11 @@ func s(v string) *string {
 	return fi.String(v)
 }
 
+// B is a helper that builds a *bool from a bool value
+func B(v bool) *bool {
+	return fi.Bool(v)
+}
+
 // i64 is a helper that builds a *int64 from an int64 value
 func i64(v int64) *int64 {
 	return fi.Int64(v)

@@ -262,6 +262,20 @@ type ClusterSpec struct {
 
 	// Alternative locations for files and containers
 	Assets *Assets `json:"assets,omitempty"`
+
+	// Use an existing custom cloud security group for the instances.  One example is to specify the name
+	// of an AWS security group for master and another for the nodes.
+	SecurityGroups *SecurityGroups `json:"securityGroups,omitempty"`
+}
+
+// Security groups for master(s) and node(s)
+type SecurityGroups struct {
+
+	// Name is the name of the sg to use for the master
+	Master *string `json:"master,omitempty"`
+
+	// Name is the name of the sg to use for the node
+	Node *string `json:"node,omitempty"`
 }
 
 type Assets struct {

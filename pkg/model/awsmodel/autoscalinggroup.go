@@ -67,12 +67,17 @@ func (b *AutoscalingGroupModelBuilder) Build(c *fi.ModelBuilderContext) error {
 				volumeType = DefaultVolumeType
 			}
 
+			secGroup, err := b.LinkToSecurityGroup(ig.Spec.Role)
+			if err != nil {
+				return fmt.Errorf("unable to link security group for autoscaling group: %v", err)
+			}
+
 			t := &awstasks.LaunchConfiguration{
 				Name:      s(name),
 				Lifecycle: b.Lifecycle,
 
 				SecurityGroups: []*awstasks.SecurityGroup{
-					b.LinkToSecurityGroup(ig.Spec.Role),
+					secGroup,
 				},
 				IAMInstanceProfile: b.LinkToIAMInstanceProfile(ig),
 				ImageID:            s(ig.Spec.Image),
@@ -98,8 +103,6 @@ func (b *AutoscalingGroupModelBuilder) Build(c *fi.ModelBuilderContext) error {
 				}
 				t.SecurityGroups = append(t.SecurityGroups, sgTask)
 			}
-
-			var err error
 
 			if t.SSHKey, err = b.LinkToSSHKey(); err != nil {
 				return err
