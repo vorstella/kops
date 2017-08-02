@@ -138,6 +138,10 @@ type ClusterSpec struct {
 	// of an AWS IAM role for the master and another for the nodes.
 	AuthRole *AuthRole `json:"authRole,omitempty"`
 
+	// Use an existing custom cloud security group for the instances.  One example is to specify the name
+	// of an AWS security group for master and another for the nodes.
+	SecurityGroup *SecurityGroup `json:"securityGroup,omitempty"`
+
 	// Additional policies to add for roles
 	AdditionalPolicies *map[string]string `json:"additionalPolicies,omitempty"`
 
@@ -343,6 +347,17 @@ type AuthRole struct {
 	// Name is the name of the policy to use for the node
 	// Format expected is arn:aws:iam::123456789012:role/ExampleNodeRole
 	Node *string `json:"node,omitempty"`
+}
+
+type SecurityGroup struct {
+
+	// Name is the name of the policy to use for the master
+	// Format expected is sg-
+	Master []string `json:"master,omitempty"`
+
+	// Name is the name of the policy to use for the node
+	// Format expected is arn:aws:iam::123456789012:role/ExampleNodeRole
+	Node []string `json:"node,omitempty"`
 }
 
 type EtcdClusterSpec struct {
