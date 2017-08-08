@@ -30,7 +30,6 @@ import (
 	"k8s.io/kops/pkg/model/iam"
 	"k8s.io/kops/upup/pkg/fi"
 	"k8s.io/kops/upup/pkg/fi/cloudup/awstasks"
-	"regexp"
 )
 
 // IAMModelBuilder configures IAM objects
@@ -70,23 +69,25 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 
 	// Generate IAM objects etc for each role
 	for _, role := range roles {
-		name := b.IAMName(role)
+		name, err := b.IAMName(role)
+		if err != nil {
+			return fmt.Errorf("unable to set role name: %s", role)
+		}
 
 		var iamRole *awstasks.IAMRole
-
-		arn := ""
+		var arn string
 
 		// Want to use a FeatureFlag in front of this to allow the validation to harden
-		if b.Cluster.Spec.AuthRole != nil && featureflag.CustomRoleSupport.Enabled() {
+		if b.Cluster.Spec.AuthProfile != nil && featureflag.CustomRoleSupport.Enabled() {
 
 			roleAsString := string(role)
 
-			if role == kops.InstanceGroupRoleMaster && b.Cluster.Spec.AuthRole.Master != nil {
-				arn = *b.Cluster.Spec.AuthRole.Master
-				glog.Warningf("Custom Role Support is enabled, kops will use %s, for %s role, this is an advanced feature please use with great care", arn, roleAsString)
-			} else if role == kops.InstanceGroupRoleNode && b.Cluster.Spec.AuthRole.Node != nil {
-				arn = *b.Cluster.Spec.AuthRole.Node
-				glog.Warningf("Custom Role Support is enabled, kops will use %s, for %s role, this is an advanced feature please use with great care", arn, roleAsString)
+			if role == kops.InstanceGroupRoleMaster && b.Cluster.Spec.AuthProfile.Master != nil {
+				arn = *b.Cluster.Spec.AuthProfile.Master
+				glog.Warningf("Custom Instance Profile Support is enabled, kops will use %s, for %s role, this is an advanced feature please use with great care", arn, roleAsString)
+			} else if role == kops.InstanceGroupRoleNode && b.Cluster.Spec.AuthProfile.Node != nil {
+				arn = *b.Cluster.Spec.AuthProfile.Node
+				glog.Warningf("Custom Instance Profile Support is enabled, kops will use %s, for %s role, this is an advanced feature please use with great care", arn, roleAsString)
 			}
 
 		}
@@ -94,33 +95,17 @@ func (b *IAMModelBuilder) Build(c *fi.ModelBuilderContext) error {
 		// If we've specified an IAMRoleArn for this cluster role,
 		// do not create a new one
 		if arn != "" {
-			roleName, err := findCustomArn(arn)
-			if err != nil {
-				return fmt.Errorf("unable to parse custom roleName from arn: %q", arn)
-			}
-
-			glog.V(2).Infof("re-using role %s", roleName)
-			iamRole = &awstasks.IAMRole{
-				Name:      s(roleName),
-				ID:        &arn,
+			glog.V(8).Infof("re-using instance profile %s", name)
+			iamInstanceProfile := &awstasks.IAMInstanceProfile{
+				Name:      s(name),
+				ID:        s(arn),
 				Lifecycle: b.Lifecycle,
+				Shared:    fi.Bool(true),
 				// We set Policy Document to nil as this role will be managed externally
-				RolePolicyDocument: nil,
 			}
-
-			glog.V(2).Infof("reusing custom role: %q", arn)
-
-			// TODO Validate role against role that kops generates
-			// TODO Where is out entry point to validate the role?
-			// TODO We need to run the aws finder and we do not have access to the cloud context.
-			// TODO We need to validate somewhere else.
-
-			// Steps to validate
-			// 1. get the role
-			// 2. generate the role out of iam_builder
-			// 3. diff the two
-
-			c.AddTask(iamRole)
+			c.AddTask(iamInstanceProfile)
+			// we do not add any other IAM tasks
+			continue
 		} else {
 
 			{
@@ -256,21 +241,4 @@ func (b *IAMModelBuilder) buildAWSIAMRolePolicy() (fi.Resource, error) {
 		return nil, err
 	}
 	return templateResource, nil
-}
-
-var RoleNamRegExp = regexp.MustCompile(`([^/]+$)`)
-
-func findCustomArn(arn string) (string, error) {
-	rs := RoleNamRegExp.FindStringSubmatch(arn)
-	roleName := ""
-
-	if len(rs) >= 2 {
-		roleName = rs[1]
-	}
-
-	if roleName == "" {
-		return "", fmt.Errorf("unable to parse role arn %q", arn)
-	}
-
-	return roleName, nil
 }

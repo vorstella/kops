@@ -452,6 +452,7 @@ func (_ *LaunchConfiguration) RenderTerraform(t *terraform.TerraformTarget, a, e
 			return err
 		}
 	}
+
 	if e.IAMInstanceProfile != nil {
 		tf.IAMInstanceProfile = e.IAMInstanceProfile.TerraformLink()
 	}

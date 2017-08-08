@@ -136,7 +136,7 @@ type ClusterSpec struct {
 
 	// Use an existing custom cloud security policy for the instances.  One example is to specify the name
 	// of an AWS IAM role for the master and another for the nodes.
-	AuthRole *AuthRole `json:"authRole,omitempty"`
+	AuthProfile *AuthProfile `json:"authProfile,omitempty"`
 
 	// Additional policies to add for roles
 	AdditionalPolicies *map[string]string `json:"additionalPolicies,omitempty"`
@@ -358,14 +358,14 @@ type KubeDNSConfig struct {
 	ServerIP string `json:"serverIP,omitempty"`
 }
 
-type AuthRole struct {
+type AuthProfile struct {
 
-	// Name is the name of the policy to use for the master
-	// Format expected is arn:aws:iam::123456789012:role/ExampleMasterRole
+	// Name is the name of the instance profile to use for the master
+	// Format expected is arn:aws:iam::123456789012:instance-profile/ExampleMasterRole
 	Master *string `json:"master,omitempty"`
 
-	// Name is the name of the policy to use for the node
-	// Format expected is arn:aws:iam::123456789012:role/ExampleNodeRole
+	// Name is the name of the instance profile to use for the node
+	// Format expected is arn:aws:iam::123456789012:instance-profile/ExampleNodeRole
 	Node *string `json:"node,omitempty"`
 }
 

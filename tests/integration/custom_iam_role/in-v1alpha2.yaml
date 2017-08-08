@@ -6,9 +6,9 @@ metadata:
 spec:
   api:
     dns: {}
-  authRole:
-    master: "arn:aws:iam::4222917490108:role/kops-custom-master-role"
-    node: "arn:aws:iam::422917490108:role/kops-custom-node-role"
+  authProfile:
+    master: "arn:aws:iam::4222917490108:instance-profile/kops-custom-master-role"
+    node: "arn:aws:iam::422917490108:instance-profile/kops-custom-node-role"
   channel: stable
   cloudProvider: aws
   configBase: memfs://tests/custom-iam-role.example.com

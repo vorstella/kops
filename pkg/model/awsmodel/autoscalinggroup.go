@@ -72,6 +72,11 @@ func (b *AutoscalingGroupModelBuilder) Build(c *fi.ModelBuilderContext) error {
 				return fmt.Errorf("unable to link security group for autoscaling group: %v", err)
 			}
 
+			iamProfileLink, err := b.LinkToIAMInstanceProfile(ig)
+			if err != nil {
+				return fmt.Errorf("unable to find iam profile task link: %v", err)
+			}
+
 			t := &awstasks.LaunchConfiguration{
 				Name:      s(name),
 				Lifecycle: b.Lifecycle,
@@ -79,7 +84,7 @@ func (b *AutoscalingGroupModelBuilder) Build(c *fi.ModelBuilderContext) error {
 				SecurityGroups: []*awstasks.SecurityGroup{
 					secGroup,
 				},
-				IAMInstanceProfile: b.LinkToIAMInstanceProfile(ig),
+				IAMInstanceProfile: iamProfileLink,
 				ImageID:            s(ig.Spec.Image),
 				InstanceType:       s(ig.Spec.MachineType),
 

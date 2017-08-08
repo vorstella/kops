@@ -27,7 +27,7 @@ func Test_RoleRegex(t *testing.T) {
 		Pass     bool
 	}{
 		{
-			"arn:aws:iam::034201736311:role/prn/aws/syd/non/bffoo/sdskube/poc1/20/admin/bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
+			"arn:aws:iam::034201736311:instance-profile/prn/aws/syd/non/bffoo/sdskube/poc1/20/admin/bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
 			"bfsoo-sdskube-poc1-20-syd-kops-InstanceRole-I2DULW7329QA",
 			true,
 		},
@@ -37,13 +37,13 @@ func Test_RoleRegex(t *testing.T) {
 			false,
 		},
 		{
-			"arn:aws:iam::962942490108:role/kops-custom-master-role",
+			"arn:aws:iam::962942490108:instance-profile/kops-custom-master-role",
 			"kops-custom-master-role",
 			true,
 		},
 	}
 	for _, g := range grid {
-		rs, err := findCustomArn(g.ARN)
+		rs, err := findCustomAuthNameFromArn(&g.ARN)
 		if err != nil && g.Pass {
 			t.Errorf("expected to match and did not")
 		}

@@ -108,15 +108,9 @@ func TestPrivateDns2(t *testing.T) {
 	runTest(t, "privatedns2.example.com", "../../tests/integration/privatedns2", "v1alpha2", true, 1, true)
 }
 
-// TODO: https://github.com/kubernetes/kops/issues/2438
 // TestCreateClusterCustomIamRole runs kops create cluster custom_iam_role.example.com --zones us-test-1a
 func TestCreateClusterCustomIamRole(t *testing.T) {
-	/*
-		a := true
-		featureflag.CustomRoleSupport = featureflag.New("CustomRoleSupport", &a)
-	*/
 	featureflag.ParseFlags("+CustomRoleSupport")
-
 	runTest(t, "custom-iam-role.example.com", "../../tests/integration/custom_iam_role", "v1alpha2", false, 1, false)
 }
 

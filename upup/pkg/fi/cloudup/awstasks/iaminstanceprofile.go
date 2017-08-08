@@ -34,8 +34,9 @@ import (
 type IAMInstanceProfile struct {
 	Name      *string
 	Lifecycle *fi.Lifecycle
-
-	ID *string
+	// Shared is set if this is a shared instance profile
+	Shared *bool
+	ID     *string
 }
 
 var _ fi.CompareWithID = &IAMInstanceProfile{}
@@ -103,6 +104,14 @@ func (s *IAMInstanceProfile) CheckChanges(a, e, changes *IAMInstanceProfile) err
 }
 
 func (_ *IAMInstanceProfile) RenderAWS(t *awsup.AWSAPITarget, a, e, changes *IAMInstanceProfile) error {
+	shared := fi.BoolValue(e.Shared)
+	if shared {
+		if a == nil {
+			return fmt.Errorf("instance role profile with id %q not found", fi.StringValue(e.ID))
+		}
+
+		return nil
+	}
 	if a == nil {
 		glog.V(2).Infof("Creating IAMInstanceProfile with Name:%q", *e.Name)
 
@@ -154,6 +163,9 @@ func (_ *IAMInstanceProfile) RenderTerraform(t *terraform.TerraformTarget, a, e,
 }
 
 func (e *IAMInstanceProfile) TerraformLink() *terraform.Literal {
+	if e.Shared != nil && *e.Shared {
+		return terraform.LiteralFromStringValue(*e.ID)
+	}
 	return terraform.LiteralProperty("aws_iam_instance_profile", *e.Name, "id")
 }
 

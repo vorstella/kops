@@ -60,8 +60,8 @@ func validateClusterSpec(spec *kops.ClusterSpec, fieldPath *field.Path) field.Er
 		allErrs = append(allErrs, validateHook(&spec.Hooks[i], fieldPath.Child("hooks").Index(i))...)
 	}
 
-	if spec.AuthRole != nil {
-		allErrs = append(allErrs, validateAuthRole(spec.AuthRole, fieldPath.Child("authPolicy"))...)
+	if spec.AuthProfile != nil {
+		allErrs = append(allErrs, validateAuthProfile(spec.AuthProfile, fieldPath.Child("authProfile"))...)
 	}
 
 	return allErrs
@@ -159,25 +159,25 @@ func validateExecContainerAction(v *kops.ExecContainerAction, fldPath *field.Pat
 	return allErrs
 }
 
-// format is arn:aws:iam::123456789012:role/S3Access
-var RoleARNRegExp = regexp.MustCompile(`^arn:aws:iam::\d+:role\/(\S+)$`)
+// format is arn:aws:iam::123456789012:instance-profile/S3Access
+var validARN = regexp.MustCompile(`^arn:aws:iam::\d+:instance-profile\/\S+$`)
 
-// validateAuthRole checks the String values for the AuthRole
-func validateAuthRole(v *kops.AuthRole, fldPath *field.Path) field.ErrorList {
+// validateAuthProfile checks the String values for the AuthProfile
+func validateAuthProfile(v *kops.AuthProfile, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 
 	if v.Node != nil {
 		arn := *v.Node
-		if !RoleARNRegExp.MatchString(arn) {
+		if !validARN.MatchString(arn) {
 			allErrs = append(allErrs, field.Invalid(fldPath.Child("Node"), arn,
-				"Node AuthRole must be a valid aws arn such as arn:aws:iam::123456789012:role/KopsNodeExampleRole"))
+				"Node AuthProfile must be a valid aws arn such as arn:aws:iam::123456789012:instance-profile/KopsNodeExampleRole"))
 		}
 	}
 	if v.Master != nil {
 		arn := *v.Master
-		if !RoleARNRegExp.MatchString(arn) {
+		if !validARN.MatchString(arn) {
 			allErrs = append(allErrs, field.Invalid(fldPath.Child("Master"), arn,
-				"Node AuthRole must be a valid aws arn such as arn:aws:iam::123456789012:role/KopsMasterExampleRole"))
+				"Node AuthProfile must be a valid aws arn such as arn:aws:iam::123456789012:instance-profile/KopsMasterExampleRole"))
 		}
 	}
 

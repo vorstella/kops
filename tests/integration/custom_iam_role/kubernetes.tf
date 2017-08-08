@@ -102,16 +102,6 @@ resource "aws_ebs_volume" "a-etcd-main-custom-iam-role-example-com" {
   }
 }
 
-resource "aws_iam_instance_profile" "masters-custom-iam-role-example-com" {
-  name = "masters.custom-iam-role.example.com"
-  role = "arn:aws:iam::4222917490108:role/kops-custom-master-role"
-}
-
-resource "aws_iam_instance_profile" "nodes-custom-iam-role-example-com" {
-  name = "nodes.custom-iam-role.example.com"
-  role = "arn:aws:iam::422917490108:role/kops-custom-node-role"
-}
-
 resource "aws_internet_gateway" "custom-iam-role-example-com" {
   vpc_id = "${aws_vpc.custom-iam-role-example-com.id}"
 
@@ -131,7 +121,7 @@ resource "aws_launch_configuration" "master-us-test-1a-masters-custom-iam-role-e
   image_id                    = "ami-15000000"
   instance_type               = "m3.medium"
   key_name                    = "${aws_key_pair.kubernetes-custom-iam-role-example-com-c4a6ed9aa889b9e2c39cd663eb9c7157.id}"
-  iam_instance_profile        = "${aws_iam_instance_profile.masters-custom-iam-role-example-com.id}"
+  iam_instance_profile        = "arn:aws:iam::4222917490108:instance-profile/kops-custom-master-role"
   security_groups             = ["${aws_security_group.masters-custom-iam-role-example-com.id}"]
   associate_public_ip_address = true
   user_data                   = "${file("${path.module}/data/aws_launch_configuration_master-us-test-1a.masters.custom-iam-role.example.com_user_data")}"
@@ -157,7 +147,7 @@ resource "aws_launch_configuration" "nodes-custom-iam-role-example-com" {
   image_id                    = "ami-15000000"
   instance_type               = "t2.medium"
   key_name                    = "${aws_key_pair.kubernetes-custom-iam-role-example-com-c4a6ed9aa889b9e2c39cd663eb9c7157.id}"
-  iam_instance_profile        = "${aws_iam_instance_profile.nodes-custom-iam-role-example-com.id}"
+  iam_instance_profile        = "arn:aws:iam::422917490108:instance-profile/kops-custom-node-role"
   security_groups             = ["${aws_security_group.nodes-custom-iam-role-example-com.id}"]
   associate_public_ip_address = true
   user_data                   = "${file("${path.module}/data/aws_launch_configuration_nodes.custom-iam-role.example.com_user_data")}"

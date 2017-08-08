@@ -87,33 +87,38 @@ func s(v string) *string {
 
 func TestValidateAuth(t *testing.T) {
 	grid := []struct {
-		Input          *kops.AuthRole
+		Input          *kops.AuthProfile
 		ExpectedErrors []string
 		ExpectedDetail string
 	}{
 		{
-			Input: &kops.AuthRole{
-				Master: s("arn:aws:iam::123456789012:role/S3Access"),
+			Input: &kops.AuthProfile{
+				Master: s("arn:aws:iam::123456789012:instance-profile/S3Access"),
 			},
 		},
 		{
-			Input: &kops.AuthRole{
+			Input: &kops.AuthProfile{
+				Master: s("arn:aws:iam::123456789012:instance-profile/has/path/S3Access"),
+			},
+		},
+		{
+			Input: &kops.AuthProfile{
 				Master: s("42"),
 			},
-			ExpectedErrors: []string{"Invalid value::AuthRole.Master"},
-			ExpectedDetail: "Node AuthRole must be a valid aws arn such as arn:aws:iam::123456789012:role/KopsMasterExampleRole",
+			ExpectedErrors: []string{"Invalid value::AuthProfile.Master"},
+			ExpectedDetail: "Node AuthProfile must be a valid aws arn such as arn:aws:iam::123456789012:instance-profile/KopsMasterExampleRole",
 		},
 		{
-			Input: &kops.AuthRole{
+			Input: &kops.AuthProfile{
 				Node: s("arn:aws:iam::123456789012:group/division_abc/subdivision_xyz/product_A/Developers"),
 			},
-			ExpectedErrors: []string{"Invalid value::AuthRole.Node"},
-			ExpectedDetail: "Node AuthRole must be a valid aws arn such as arn:aws:iam::123456789012:role/KopsNodeExampleRole",
+			ExpectedErrors: []string{"Invalid value::AuthProfile.Node"},
+			ExpectedDetail: "Node AuthProfile must be a valid aws arn such as arn:aws:iam::123456789012:instance-profile/KopsNodeExampleRole",
 		},
 	}
 
 	for _, g := range grid {
-		errs := validateAuthRole(g.Input, field.NewPath("AuthRole"))
+		errs := validateAuthProfile(g.Input, field.NewPath("AuthProfile"))
 
 		testErrors(t, g.Input, errs, g.ExpectedErrors)
 
