@@ -18,13 +18,14 @@ package protokube
 
 import (
 	"fmt"
+	"os"
+	"sort"
+	"time"
+
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/kubernetes/pkg/util/exec"
 	"k8s.io/kubernetes/pkg/util/mount"
-	"os"
-	"sort"
-	"time"
 )
 
 type VolumeMountController struct {
@@ -50,6 +51,12 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 	}
 
 	for _, v := range attached {
+
+		if v.LocalDevice == "/dev/sda1" || v.LocalDevice == "/dev/xvda" {
+			glog.Warningf("local device: %q, volume id: %q is being skipped and will not mounted, since it is a root volume", v.LocalDevice, v.ID)
+			continue
+		}
+
 		existing := k.mounted[v.ID]
 		if existing != nil {
 			continue
@@ -91,8 +98,13 @@ func (k *VolumeMountController) mountMasterVolumes() ([]*Volume, error) {
 }
 
 func (k *VolumeMountController) safeFormatAndMount(device string, mountpoint string, fstype string) error {
-	// Wait for the device to show up
 
+	if device == "/dev/sda1" || device == "/dev/xvda" {
+		glog.Warningf("volume: %q is being skipped and will not be formatted and mounted, since it is a root volume", device)
+		return nil
+	}
+
+	// Wait for the device to show up
 	for {
 		_, err := os.Stat(PathFor(device))
 		if err == nil {

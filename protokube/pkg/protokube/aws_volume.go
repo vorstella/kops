@@ -166,6 +166,7 @@ func (a *AWSVolumes) findVolumes(request *ec2.DescribeVolumesInput) ([]*Volume, 
 	var volumes []*Volume
 	err := a.ec2.DescribeVolumesPages(request, func(p *ec2.DescribeVolumesOutput, lastPage bool) (shouldContinue bool) {
 		for _, v := range p.Volumes {
+
 			volumeID := aws.StringValue(v.VolumeId)
 			vol := &Volume{
 				ID: volumeID,
@@ -184,7 +185,7 @@ func (a *AWSVolumes) findVolumes(request *ec2.DescribeVolumesInput) ([]*Volume, 
 				}
 			}
 
-			skipVolume := false
+			skipVolume := true
 
 			for _, tag := range v.Tags {
 				k := aws.StringValue(tag.Key)
@@ -193,16 +194,9 @@ func (a *AWSVolumes) findVolumes(request *ec2.DescribeVolumesInput) ([]*Volume, 
 				switch k {
 				case awsup.TagClusterName, "Name":
 					{
+						glog.Infof("Ignoring tag: %q", k)
 						// Ignore
 					}
-				//case TagNameMasterId:
-				//	id, err := strconv.Atoi(v)
-				//	if err != nil {
-				//		glog.Warningf("error parsing master-id tag on volume %q %s=%s; skipping volume", volumeID, k, v)
-				//		skipVolume = true
-				//	} else {
-				//		vol.Info.MasterID = id
-				//	}
 				default:
 					if strings.HasPrefix(k, awsup.TagNameEtcdClusterPrefix) {
 						etcdClusterName := strings.TrimPrefix(k, awsup.TagNameEtcdClusterPrefix)
@@ -213,6 +207,11 @@ func (a *AWSVolumes) findVolumes(request *ec2.DescribeVolumesInput) ([]*Volume, 
 							skipVolume = true
 						}
 						vol.Info.EtcdClusters = append(vol.Info.EtcdClusters, spec)
+						// TODO decrease logging level
+						// adding etcd volume
+						glog.V(2).Infof("adding volume etcd cluster: %q, volume id: %q", spec.ClusterKey, volumeID)
+						skipVolume = false
+						break
 					} else if strings.HasPrefix(k, awsup.TagNameRolePrefix) {
 						// Ignore
 					} else {
@@ -222,7 +221,14 @@ func (a *AWSVolumes) findVolumes(request *ec2.DescribeVolumesInput) ([]*Volume, 
 			}
 
 			if !skipVolume {
+				glog.Infof("Adding volume id:%q", vol.ID)
+				// TODO increase log level
+				glog.V(2).Infof("Adding volume: %+v", vol)
 				volumes = append(volumes, vol)
+			} else {
+				glog.Infof("Skipping volume id:%q", vol.ID)
+				// TODO increase log level
+				glog.V(2).Infof("Skipping volume: %+v", vol)
 			}
 		}
 		return true
