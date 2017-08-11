@@ -3,7 +3,8 @@ go:
   - 1.8
 env:
   global:
-    - VERSION=1.7.1-beta.1
+    - CI=1
+    #- VERSION=1.7.1-beta.1
 go_import_path: k8s.io/kops
 script:
 - make ci
