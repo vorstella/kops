@@ -26,29 +26,39 @@ func TestPopulateClusterSpec_Proxy(t *testing.T) {
 
 	c.Spec.EgressProxy = &kops.EgressProxySpec{
 		ProxyExcludes: "google.com",
-		HTTPProxy: kops.HTTPProxySpec{
+		HTTPProxy: kops.HTTPProxy{
 			Host: "52.205.179.249",
 			Port: 3128,
 		},
 	}
 
-	c.Spec.EgressProxy = assignProxy(c)
+	proxy, err := assignProxy(c)
+
+	if err != nil {
+		t.Fatalf("error assign proxy %v", err)
+	}
+
+	c.Spec.EgressProxy = proxy
 	c.Spec.NonMasqueradeCIDR = "100.64.0.1/10"
 
-	if c.Spec.EgressProxy.ProxyExcludes != "google.com,127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1,100.64.0.0/10" {
+	if c.Spec.EgressProxy.ProxyExcludes != "google.com,127.0.0.1,localhost,testcluster.test.com,100.64.0.1,100.64.0.0/10,169.254.169.254,172.20.0.0/16" {
 		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
 	}
 
 	c.Spec.EgressProxy = &kops.EgressProxySpec{
-		HTTPProxy: kops.HTTPProxySpec{
+		HTTPProxy: kops.HTTPProxy{
 			Host: "52.205.179.249",
 			Port: 3128,
 		},
 	}
 
-	c.Spec.EgressProxy = assignProxy(c)
+	proxy, err = assignProxy(c)
+	if err != nil {
+		t.Fatalf("error assign proxy %v", err)
+	}
+	c.Spec.EgressProxy = proxy
 
-	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,169.254.169.254,testcluster.test.com,100.64.0.1,100.64.0.1/10" {
+	if c.Spec.EgressProxy.ProxyExcludes != "127.0.0.1,localhost,testcluster.test.com,100.64.0.2,100.64.0.1/10,169.254.169.254,172.20.0.0/16" {
 		t.Fatalf("Incorrect proxy excludes set: %v", c.Spec.EgressProxy.ProxyExcludes)
 	}
 

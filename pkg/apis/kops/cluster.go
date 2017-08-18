@@ -420,15 +420,16 @@ type ClusterSubnetSpec struct {
 }
 
 type EgressProxySpec struct {
-	HTTPProxy     HTTPProxySpec `json:"httpProxy,omitempty"`
-	ProxyExcludes string        `json:"excludes,omitempty"`
+	HTTPProxy     HTTPProxy `json:"httpProxy,omitempty"`
+	ProxyExcludes string    `json:"excludes,omitempty"`
 }
 
-type HTTPProxySpec struct {
-	Host     string `json:"host,omitempty"`
-	Port     int    `json:"port,omitempty"`
-	User     string `json:"user,omitempty"`
-	Password string `json:"password,omitempty"`
+type HTTPProxy struct {
+	Host string `json:"host,omitempty"`
+	Port int    `json:"port,omitempty"`
+	// TODO #3070
+	// User     string `json:"user,omitempty"`
+	// Password string `json:"password,omitempty"`
 }
 
 // FillDefaults populates default values.
