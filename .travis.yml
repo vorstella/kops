@@ -4,7 +4,7 @@ go:
 env:
   global:
   # this will not work on a PR btw
-  - VERSION=${TRAVIS_COMMIT::9}
+  - VERSION=1.7.1-beta.2-${TRAVIS_COMMIT::9}
   # DOCKER_EMAIL
   - secure: cdThkr3I+9Tmh1+myIo04yGeHbGkrGe/jh30YIf4L7m4W7NVMgs97zY++h7ffHNl+5wVoIS4dcIe3+Fyw0azVrbxjMXMgE4HJ+Rhga/TXkAURmMSDAwuk4L+d4qZ2LhZI2t2BEPj5gVg/e2Xw5yT8fEFuFPlog06ENuiTwt9WGlIzV0dujl/kl3KE/vwRrXeSeRyeXZCqKL2Bx/t7pi9NeeyYWkJXrGugrxLgx7Q+o+Hh+o/scNmKdvf3ioOwC1lAxINBR6caIu2Fj17CjIB1uCe1baA8Jsv508IyI1mpZe9u64+dmRflKNZBNeIUh5sX9RA5jGkXnqxWdrBFTUVoB8+OkygF9tLBN1Xv348zlu4XSR0ctefILVzLVCdSD1XRP9ykrzliCgxU1ZkUttU+hLol9mFGgZgChSQzkhC2Y0rH1tb99Qe3iptTvGnzT/oZlGnagj6GdcY9YyWXbXH4iYYMkcPqnwELysqP1epQwt9Ca+zSRUzaZZjb7AUg3RoAr0tBuPkDrbpenqSXftCwWVG3LuNszXcbNpCN642hp/bRuOJu67VPpHN5wzCoQbtJric78V5iWEbnwkQ+fy8a21fFuOiA0Q8Yz1gYKMFROycocCb6wzgv2PlcjdUjWukvwHvLvg3hGauBrnKmnIs/WjDne4TFeF/eFdRDuiHgj0=
   # DOCKER_USER
