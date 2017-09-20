@@ -25,6 +25,7 @@ after_success:
 - if [ "$TRAVIS_BRANCH" == "k8s-for-greeks-integration" ]; then DOCKER_REGISTRY=$DOCKER_USER make protokube-push-no-build; fi
 - mkdir $GOPATH/src/k8s.io/kops/.build/version
 - echo $VERSION >> $GOPATH/src/k8s.io/kops/.build/version/latest
+- cat $GOPATH/src/k8s.io/kops/.build/version/latest
 deploy:
   - provider: s3
     skip_cleanup: true
@@ -38,6 +39,7 @@ deploy:
     on:
       branch: k8s-for-greeks-integration
   - provider: s3
+    skip_cleanup: true
     access_key_id:
       secure: uoeDFcDxvq6/R31yHG6vT/2iD4ym5JYIU6VEVc8NCGQqDO77K+iUHd0Ga61so1x/MtKBEdUngsIw/2fves6XDQOmK0Piz3rWFdhYELtNIhdmqiY5UzxY9dF2gKorieNpIBmtWswqxS3Q98AsvZ4wtAyHtVViGQf2LPd7niZggyFVJQdxJstI/kMBTZuM+Dm9calyZ7XHV/mRq0n7tshHAwXpmRTDSRR0QvqmM4gAz6qHL+25dOrzv/6NsI20AyxnwIUpUq3kANVLSUVJirehzK4seYCvzZkzj1wVAn7sZCEvAhW94GIw5VdlyoFlZkeT9Sjg1SeH/LWx/ig0czu3lnhNnixEWWvD62Ut+KjzRy0QDwp2K2MrYONPe4nv0bTLCegiVfW5LmQjK9ujIjfvJwGZmJlvHjVuSLXIB2WHCFjH+dRjrsyn8I1iKe2XaPUx0DxroH9bIYjm/nY5G05y25SV1rLQH5oMKwj9Wf11lP7+5jjstFJd+L/XBfsFBmn818z4neJte74nkAOstVWGHpWDGuIn0UYB3bMgwDJ0EcZRQanCTmO19BQIXChK6Gn4EmPEFHejLY2iiclkNJIyiSqEkelQ/UV9ajclDXs1Zds3JQP8wvn8K8rKQfcuPyK3W7O/kqeFNbyxqA5GvaV87CWvA58ejOCpWpMKKxtQJxk=
     bucket: k8s-for-greeks-kops
