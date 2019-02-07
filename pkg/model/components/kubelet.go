@@ -119,10 +119,8 @@ func (b *KubeletOptionsBuilder) BuildOptions(o interface{}) error {
 	} else if kubernetesVersion.Major == 1 { // for 1.6+ use kubeconfig instead of api-servers
 		const kubeconfigPath = "/var/lib/kubelet/kubeconfig"
 		clusterSpec.Kubelet.KubeconfigPath = kubeconfigPath
-		clusterSpec.Kubelet.RequireKubeconfig = fi.Bool(true)
 
 		clusterSpec.MasterKubelet.KubeconfigPath = kubeconfigPath
-		clusterSpec.MasterKubelet.RequireKubeconfig = fi.Bool(true)
 	}
 
 	// IsolateMasters enables the legacy behaviour, where master pods on a separate network

@@ -2193,7 +2193,6 @@ func autoConvert_v1alpha2_KubeletConfigSpec_To_kops_KubeletConfigSpec(in *Kubele
 	out.AnonymousAuth = in.AnonymousAuth
 	out.ClientCAFile = in.ClientCAFile
 	out.KubeconfigPath = in.KubeconfigPath
-	out.RequireKubeconfig = in.RequireKubeconfig
 	out.LogLevel = in.LogLevel
 	out.PodManifestPath = in.PodManifestPath
 	out.HostnameOverride = in.HostnameOverride
@@ -2249,7 +2248,6 @@ func autoConvert_kops_KubeletConfigSpec_To_v1alpha2_KubeletConfigSpec(in *kops.K
 	out.AnonymousAuth = in.AnonymousAuth
 	out.ClientCAFile = in.ClientCAFile
 	out.KubeconfigPath = in.KubeconfigPath
-	out.RequireKubeconfig = in.RequireKubeconfig
 	out.LogLevel = in.LogLevel
 	out.PodManifestPath = in.PodManifestPath
 	out.HostnameOverride = in.HostnameOverride

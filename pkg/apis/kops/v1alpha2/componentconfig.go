@@ -31,7 +31,6 @@ type KubeletConfigSpec struct {
 	// information and API server location
 	// kops will only use this for clusters version 1.6 and later
 	KubeconfigPath    string `json:"kubeconfigPath,omitempty" flag:"kubeconfig"`
-	RequireKubeconfig *bool  `json:"requireKubeconfig,omitempty" flag:"require-kubeconfig"`
 
 	LogLevel *int32 `json:"logLevel,omitempty" flag:"v"`
 
